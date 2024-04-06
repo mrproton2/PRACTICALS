@@ -1,0 +1,107 @@
+PRACTICAL1
+*ospf
+ROUTER :
+router ospf 1
+network ipaddress wildmask area 0
+**OSPF MD5 AUTHETICATIOn COMMNADS
+router ospf 1
+area 0 authentication messsage-digest
+select interface LIKE interface s0/0/0 or s0/0/1
+ip ospf message-digest-key 1 md5 MDpa55
+show ip ospf interface
+
+
+**NTP
+PERFORM PRACTICAL 1 ALL STEP
+GO TO SERVER then SERVICES then click on NTP , ENABLE THE NTP
+SET KEY 1 and PASSWORD NTPpa55
+R1(conf)
+ntp server ipaddress
+ntp-update-calendar
+
+ntp authentication 
+ntp trusted-key 1
+ntp authentication-key 1 md5 NTPpa55
+service timestamp-log datetime msec
+
+show clock
+
+**syslog
+sys log enable
+assign ipaddress to each router of sys log server ip address
+R1(config) logging  ip of sys
+show logging
+
+** SSH CONNECTION
+R3(config)
+ip domain-name ccnasecurity.com
+username SSHadmin privilege 15 secret ciscosshpa55
+line vty 0 4
+login local
+transport input ssh
+R3(config) crypto key zeroize rsa
+crypto key generate rsa 
+1024
+show ip ssh
+ip ssh time-out 90
+ip ssh authentication-retries 2
+ip ssh version 2
+PC() ssh –l SSHadmin 192.168.3.1
+
+PRACTICAL2
+**AAA
+line vty 0 4 
+password admin
+login
+R(config) router ospf 1 and configure ospf
+username Admin1 secret admin1pa55
+aaa new-model
+aaa authentication login default local
+line console 0
+login authentication default
+
+R1(config) 
+ip domain-name ccnasecurity.com 
+crypto key generate rsa
+aaa authentication login SSH-LOGIN local
+R1(config) 
+line vty 0 4
+login authentication SSH-LOGIN
+transport input ssh
+end
+
+R2(config)# username Admin2 secret admin2pa55
+Go with tacSERver ON AAA setconf
+aaa new-model
+aaa authentication login default group tacacs+ local
+line console 0
+login authentication default
+end
+
+**RADIUS
+username Admin3 secret admin3pa55
+Go with RADIUS ON AAA setconf
+R3 aaa new-model
+aaa authentication login default group radius local
+line console 0
+login authentication default
+end
+
+PRACTICALS 3
+**ACL
+R1(config)#
+acc
+access-list 100 permit tcp (pc ip address wildmask) host (172.22.34.62) eq ftp
+access-list 100 permit icmp (pc ip address wildmask) host 172.22.34.62
+interface gigabitEthernet 0/0
+PC1 to Server=
+PC> ftp 172.22.34.62
+
+R1(config)# ip access-list extended HTTP_ONLY
+permit tcp 172.22.34.96 0.0.0.15 host 172.22.34.62 eq www
+permit icmp 172.22.34.96 0.0.0.15 host 172.22.34.62
+interface gigabitEthernet 0/1
+ip access-group HTTP_ONLY in
+
+
+
